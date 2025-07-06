@@ -1,0 +1,109 @@
+@page "/approvals"
+@inject HttpClient Http
+
+<h3 class="mb-4">📝 Pending Approvals</h3>
+
+@if (_isLoading)
+{
+    <p>Loading approvals...</p>
+}
+else if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger">@_errorMessage</div>
+}
+else if (_approvalRequests.Count == 0)
+{
+    <div class="alert alert-info">No pending approvals at the moment.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="table-secondary">
+                <tr>
+                    <th>Booking ID</th>
+                    <th>Vehicle</th>
+                    <th>Purpose</th>
+                    <th>Requested By</th>
+                    <th>Date Range</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var request in _approvalRequests)
+                {
+                    <tr>
+                        <td>@request.Id</td>
+                        <td>@request.VehiclePlate</td>
+                        <td>@request.Purpose</td>
+                        <td>@request.RequestedBy</td>
+                        <td>@request.StartDate.ToShortDateString() - @request.EndDate.ToShortDateString()</td>
+                        <td>
+                            <button class="btn btn-success btn-sm me-1" @onclick="() => Approve(request.Id)">Approve</button>
+                            <button class="btn btn-danger btn-sm" @onclick="() => Reject(request.Id)">Reject</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private bool _isLoading = true;
+    private string? _errorMessage;
+    private List<ApprovalRequestDto> _approvalRequests = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _approvalRequests = await Http.GetFromJsonAsync<List<ApprovalRequestDto>>("api/booking/pending-approvals")
+                                ?? new List<ApprovalRequestDto>();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Error loading approvals: {ex.Message}";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task Approve(int bookingId)
+    {
+        var response = await Http.PostAsync($"api/booking/approve/{bookingId}", null);
+        if (response.IsSuccessStatusCode)
+        {
+            _approvalRequests.RemoveAll(r => r.Id == bookingId);
+        }
+        else
+        {
+            _errorMessage = "Failed to approve booking.";
+        }
+    }
+
+    private async Task Reject(int bookingId)
+    {
+        var response = await Http.PostAsync($"api/booking/reject/{bookingId}", null);
+        if (response.IsSuccessStatusCode)
+        {
+            _approvalRequests.RemoveAll(r => r.Id == bookingId);
+        }
+        else
+        {
+            _errorMessage = "Failed to reject booking.";
+        }
+    }
+
+    private class ApprovalRequestDto
+    {
+        public int Id { get; set; }
+        public string VehiclePlate { get; set; } = string.Empty;
+        public string Purpose { get; set; } = string.Empty;
+        public string RequestedBy { get; set; } = string.Empty;
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+    }
+}

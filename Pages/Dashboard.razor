@@ -1,0 +1,79 @@
+@page "/dashboard"
+@inject HttpClient Http
+
+<h3 class="mb-4">📊 Vehicle Usage Dashboard</h3>
+
+@if (_isLoading)
+{
+    <div class="placeholder-glow">
+        <div class="placeholder col-12 mb-2"></div>
+        <div class="placeholder col-8"></div>
+    </div>
+}
+else if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger">@_errorMessage</div>
+}
+else if (_dashboardData.Count == 0)
+{
+    <div class="alert alert-warning">
+        🚗 No vehicle usage data available yet.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle shadow-sm rounded">
+            <thead class="table-primary">
+                <tr>
+                    <th>Vehicle</th>
+                    <th>Total Trips</th>
+                    <th>Total Distance (km)</th>
+                    <th>Total Fuel (L)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in _dashboardData)
+                {
+                    <tr>
+                        <td><strong>@item.VehiclePlate</strong></td>
+                        <td>@item.TotalTrips</td>
+                        <td>@item.TotalDistance.ToString("F2")</td>
+                        <td>@item.TotalFuel.ToString("F2")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private bool _isLoading = true;
+    private string? _errorMessage;
+    private List<DashboardItem> _dashboardData = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var result = await Http.GetFromJsonAsync<List<DashboardItem>>("api/booking/dashboard");
+            _dashboardData = result ?? new();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"🚫 Failed to load dashboard data: {ex.Message}";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private class DashboardItem
+    {
+        public string VehiclePlate { get; set; } = string.Empty;
+        public int TotalTrips { get; set; }
+        public double TotalDistance { get; set; }
+        public double TotalFuel { get; set; }
+    }
+}

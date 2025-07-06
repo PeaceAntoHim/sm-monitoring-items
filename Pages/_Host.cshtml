@@ -1,0 +1,25 @@
+@page "/"
+@namespace sm_monitoring_items.Frontend.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Vehicle Booking</title>
+    <base href="~/" />
+    <link href="css/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/site.css" rel="stylesheet" />
+</head>
+<body>
+<app>
+    <component type="typeof(App)" render-mode="ServerPrerendered" />
+</app>
+
+<script src="_framework/blazor.server.js"></script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+@using Microsoft.AspNetCore.Components.Routing
+<nav class="d-flex flex-column p-4 bg-dark text-white shadow-sm position-sticky"
+     style="min-height: 100vh; width: 250px; top: 0;">
+    <div class="mb-4">
+        <NavLink class="navbar-brand fs-4 text-white text-decoration-none" href="/dashboard">
+            🚘 <strong>Vehicle Booking</strong>
+        </NavLink>
+    </div>
+
+    <ul class="nav nav-pills flex-column gap-2">
+        <li class="nav-item">
+            <NavLink class="nav-link text-white d-flex align-items-center gap-2"
+                     href="/dashboard"
+                     Match="NavLinkMatch.All">
+                📊 <span>Dashboard</span>
+            </NavLink>
+        </li>
+        <li class="nav-item">
+            <NavLink class="nav-link text-white d-flex align-items-center gap-2"
+                     href="/book">
+                📝 <span>Book Vehicle</span>
+            </NavLink>
+        </li>
+        <li class="nav-item">
+            <NavLink class="nav-link text-white d-flex align-items-center gap-2"
+                     href="/approvals">
+                ✅ <span>Approvals</span>
+            </NavLink>
+        </li>
+    </ul>
+
+    <div class="mt-auto pt-4 border-top border-light">
+        <button class="btn btn-outline-light w-100 d-flex align-items-center justify-content-center gap-2" @onclick="Logout">
+            🚪 <span>Logout</span>
+        </button>
+    </div>
+</nav>
